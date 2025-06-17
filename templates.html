@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Templates</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import {
+      getDatabase, ref, onValue, remove
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyDgc1-JQaWpDWGxnK_D0g9S_G6jrhI0iG8",
+  authDomain: "sahithyotsavu-7f6d1.firebaseapp.com",
+  projectId: "sahithyotsavu-7f6d1",
+  storageBucket: "sahithyotsavu-7f6d1.firebasestorage.app",
+  messagingSenderId: "544493750372",
+  appId: "1:544493750372:web:ac8cebaf64f7447a6d3771",
+  measurementId: "G-C3JLLH88RK"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const templatesRef = ref(db, "templates");
+
+    const container = document.getElementById("templateContainer");
+
+    onValue(templatesRef, (snapshot) => {
+      container.innerHTML = "";
+      snapshot.forEach((child) => {
+        const id = child.key;
+        const data = child.val();
+        const templateBox = document.createElement("div");
+
+        templateBox.className = "bg-gray-800 p-4 rounded shadow text-white";
+        templateBox.innerHTML = `
+          <img src="${data.image}" alt="${data.name}" class="w-full h-40 object-cover rounded mb-2"/>
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="text-lg font-bold">${data.name}</h2>
+            <div>
+              <button onclick="editTemplate('${id}')" class="text-yellow-400 mr-2">✏️</button>
+              <button onclick="deleteTemplate('${id}')" class="text-red-400">🗑️</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(templateBox);
+      });
+    });
+
+    window.editTemplate = function(id) {
+      location.href = `template-create.html?id=${id}`;
+    };
+
+    window.deleteTemplate = function(id) {
+      if (confirm("Are you sure to delete this template?")) {
+        remove(ref(db, `templates/${id}`));
+      }
+    };
+
+    window.createTemplate = function () {
+      location.href = "template-create.html";
+    };
+  </script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-4">
+
+  <h1 class="text-2xl font-bold mb-4">Templates</h1>
+
+  <div id="templateContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Templates will load here -->
+  </div>
+
+  <button onclick="createTemplate()" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full shadow-lg">
+    ➕ Create Template
+  </button>
+
+</body>
+</html>
