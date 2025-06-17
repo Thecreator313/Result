@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Poster Preview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Roboto';
+      src: url('./assets/fonts/Roboto-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Montserrat';
+      src: url('./assets/fonts/Montserrat-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+@font-face {
+      font-family: 'NeulisAlt-Bold';
+      src: url('./assets/fonts/NeulisAlt-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+@font-face {
+      font-family: 'NeulisAlt-Medium';
+      src: url('./assets/fonts/NeulisAlt-Medium.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+@font-face {
+      font-family: 'NeulisAlt-Regular';
+      src: url('./assets/fonts/NeulisAlt-Regular.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+@font-face {
+      font-family: 'Nexa-Heavy';
+      src: url('./assets/fonts/Nexa-Heavy.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'anek';
+      src: url('./assets/fonts/AnekMalayalam_Condensed-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'anek-light';
+      src: url('./assets/fonts/AnekMalayalam_Condensed-Light.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'OpenSans';
+      src: url('./assets/fonts/OpenSans-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    .fade-in {
+      animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white p-4 flex flex-col min-h-screen">
+  <h1 class="text-xl font-bold mb-4">🎨 Poster Preview</h1>
+
+  <div class="mb-4">
+    <input id="searchProgram" class="w-full p-2 bg-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-400" placeholder="Search by Program Name" oninput="filterPosters()"/>
+  </div>
+
+  <div class="mb-4 flex justify-center">
+    <img id="adImage" src="" alt="Advertisement" class="w-[95%] h-auto rounded-lg shadow-lg border-2 border-gray-700"/>
+  </div>
+
+  <div class="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl p-4 mb-4 shadow-xl border border-gray-600 hover:shadow-yellow-400/20 transition-shadow duration-300">
+    <div class="flex justify-between items-center">
+      <div class="text-lg font-bold text-yellow-400">Published Results: <span id="publishedCount">0</span></div>
+      <a href="team-points.html" class="bg-yellow-400 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200">Team Points</a>
+    </div>
+  </div>
+
+  <div id="posterList" class="space-y-4 mb-8"></div>
+
+  <!-- Footer -->
+  <footer class="mt-auto bg-gray-800 rounded-lg py-2 text-center text-gray-300 text-sm">
+    <p>©2025 SSF Maloor sector | Designed by <a href="https://wa.me/9744400024" target="_blank" class="text-yellow-400 hover:text-yellow-300 underline">Habeeb</a></p>
+  </footer>
+
+  <!-- Preview Modal -->
+  <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-80 z-30 hidden flex items-center justify-center">
+    <div class="bg-gray-800 text-white p-6 rounded-lg max-w-[90vw] max-h-[90vh] w-auto relative shadow-xl overflow-auto">
+      <img id="previewImg" class="w-auto h-auto max-w-full max-h-[80vh] rounded mb-4" alt="Generated Poster" />
+      <div id="templateSelection" class="mb-4">
+        <label class="block text-sm font-bold mb-2 text-yellow-400">Select Template:</label>
+        <div id="templateButtons" class="flex gap-2 flex-wrap"></div>
+      </div>
+      <div class="flex justify-between">
+        <button onclick="downloadPoster()" class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-400 transition-colors duration-200">Download</button>
+        <button onclick="sharePoster()" class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-400 transition-colors duration-200">Share</button>
+        <button onclick="closePreview()" class="text-red-500 underline hover:text-red-400">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import {
+      getDatabase, ref, onValue, get, child
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    // Initialize Firebase
+    const firebaseConfig = {
+  apiKey: "AIzaSyDgc1-JQaWpDWGxnK_D0g9S_G6jrhI0iG8",
+  authDomain: "sahithyotsavu-7f6d1.firebaseapp.com",
+  projectId: "sahithyotsavu-7f6d1",
+  storageBucket: "sahithyotsavu-7f6d1.firebasestorage.app",
+  messagingSenderId: "544493750372",
+  appId: "1:544493750372:web:ac8cebaf64f7447a6d3771",
+  measurementId: "G-C3JLLH88RK"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let currentPosterImg = "";
+    let currentPosterData = {};
+    let allPosters = [];
+    let adImages = [];
+    let currentAdIndex = 0;
+
+    const postersRef = ref(db, "generated");
+    const templatesRef = ref(db, "templates");
+    const adsRef = ref(db, "ads");
+
+    // Fetch and display advertisement images
+    onValue(adsRef, snap => {
+      const data = snap.val();
+      if (data) {
+        adImages = Object.values(data).map(item => Object.values(item)[0].imagelink).filter(url => url);
+        if (adImages.length > 0) {
+          swapAdImage();
+          setInterval(swapAdImage, 5000);
+        }
+      }
+    });
+
+    function swapAdImage() {
+      const adImageElement = document.getElementById("adImage");
+      if (adImages.length === 0) return;
+      adImageElement.classList.remove("fade-in");
+      setTimeout(() => {
+        adImageElement.src = adImages[currentAdIndex];
+        adImageElement.classList.add("fade-in");
+        currentAdIndex = (currentAdIndex + 1) % adImages.length;
+      }, 100);
+    }
+
+    onValue(postersRef, snap => {
+      const container = document.getElementById("posterList");
+      container.innerHTML = "";
+      const data = snap.val();
+      if (!data) {
+        container.innerHTML = "No published posters yet";
+        document.getElementById("publishedCount").textContent = "0";
+        return;
+      }
+
+      allPosters = Object.entries(data)
+        .map(([id, item]) => ({ id, ...item }))
+        .filter(poster => poster.publish === true);
+      allPosters.sort((a, b) => (parseInt(b.number) || 0) - (parseInt(a.number) || 0));
+      document.getElementById("publishedCount").textContent = allPosters.length;
+      filterPosters();
+    });
+
+    window.filterPosters = () => {
+      const searchTerm = document.getElementById("searchProgram").value.toLowerCase();
+      const container = document.getElementById("posterList");
+      container.innerHTML = "";
+
+      const filteredPosters = allPosters.filter(poster => 
+        poster.program.toLowerCase().includes(searchTerm)
+      );
+
+      if (filteredPosters.length === 0) {
+        container.innerHTML = "No published posters found";
+        return;
+      }
+
+      filteredPosters.forEach(({ id, ...item }) => {
+        const div = document.createElement("div");
+        div.className = "bg-gray-800 rounded-lg p-3 flex items-center gap-3 hover:bg-gray-700 transition-colors duration-200 cursor-pointer";
+        div.onclick = () => previewPoster(id);
+        div.innerHTML = `
+          <div class="bg-yellow-400 text-black rounded-full w-10 h-10 flex items-center justify-center font-bold">${item.number || 'N/A'}</div>
+          <div class="flex-1">
+            <div class="font-bold">${item.program}</div>
+            <div class="text-sm text-gray-300">${item.category} (${item.type || 'automatic'})</div>
+          </div>
+          <div class="flex gap-2">
+            <span class="text-green-400">👁</span>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    };
+
+    window.previewPoster = async (posterId) => {
+      try {
+        const snapshot = await get(child(ref(db), `generated/${posterId}`));
+        if (!snapshot.exists()) {
+          throw new Error("Poster data not found");
+        }
+        currentPosterData = snapshot.val();
+
+        if (currentPosterData.type === "manual") {
+          if (!currentPosterData.imageUrl) throw new Error("No image URL found");
+          currentPosterImg = currentPosterData.imageUrl;
+          document.getElementById("previewImg").src = currentPosterImg;
+          document.getElementById("templateSelection").classList.add("hidden");
+        } else {
+          if (!currentPosterData.templateId) throw new Error("Poster is missing templateId");
+          const templateSnap = await get(child(ref(db), `templates/${currentPosterData.templateId}`));
+          if (!templateSnap.exists()) throw new Error("Template not found");
+          const template = templateSnap.val();
+          if (!template.image) throw new Error("Template image URL is missing");
+
+          const templatesSnap = await get(templatesRef);
+          const templates = templatesSnap.val() || {};
+          const templateButtons = document.getElementById("templateButtons");
+          templateButtons.innerHTML = "";
+          Object.keys(templates).forEach((id, index) => {
+            const button = document.createElement("button");
+            button.className = "bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-400 transition-colors duration-200";
+            button.textContent = index + 1;
+            button.onclick = () => changeTemplate(index + 1);
+            templateButtons.appendChild(button);
+          });
+
+          const canvas = document.createElement("canvas");
+          canvas.width = template.width || 1080;
+          canvas.height = template.height || 1080;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) throw new Error("Failed to get canvas context");
+
+          const bg = new Image();
+          bg.crossOrigin = "anonymous";
+          bg.src = template.image;
+          await new Promise((resolve, reject) => {
+            bg.onload = resolve;
+            bg.onerror = () => reject(new Error("Failed to load template image"));
+          });
+
+          for (const key in template.variables) {
+            const t = template.variables[key] || {};
+            if (t.font && t.size) {
+              await document.fonts.load(`${t.size}px "${t.font}"`);
+            }
+          }
+
+          ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+          for (const key in template.variables) {
+            const t = template.variables[key] || {};
+            if (!t.size || !t.font || !t.color || !t.align || t.x === undefined || t.y === undefined) {
+              console.warn(`Invalid variable data for ${key}, skipping`);
+              continue;
+            }
+            ctx.font = `${t.size}px "${t.font}"`;
+            ctx.fillStyle = t.color;
+            ctx.textAlign = t.align;
+            const val = currentPosterData[key] || "";
+            ctx.fillText(val, t.x / 100 * canvas.width, t.y / 100 * canvas.height);
+          }
+
+          currentPosterImg = canvas.toDataURL();
+          document.getElementById("previewImg").src = currentPosterImg;
+          document.getElementById("templateSelection").classList.remove("hidden");
+        }
+
+        document.getElementById("previewModal").classList.remove("hidden");
+      } catch (error) {
+        console.error("Error previewing poster:", error.message || error);
+        alert(`Failed to preview poster: ${error.message || "Unknown error"}`);
+      }
+    };
+
+    window.changeTemplate = async (templateNumber) => {
+      try {
+        const templateId = Object.keys((await get(templatesRef)).val() || {})[templateNumber - 1];
+        if (!templateId) throw new Error("Template ID not found");
+        currentPosterData.templateId = templateId;
+        const templateSnap = await get(child(ref(db), `templates/${templateId}`));
+        if (!templateSnap.exists()) throw new Error("Template not found");
+        const template = templateSnap.val();
+        if (!template.image) throw new Error("Template image URL is missing");
+
+        const canvas = document.createElement("canvas");
+        canvas.width = template.width || 1080;
+        canvas.height = template.height || 1080;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Failed to get canvas context");
+
+        const bg = new Image();
+        bg.crossOrigin = "anonymous";
+        bg.src = template.image;
+        await new Promise((resolve, reject) => {
+          bg.onload = resolve;
+          bg.onerror = () => reject(new Error("Failed to load template image"));
+        });
+
+        for (const key in template.variables) {
+          const t = template.variables[key] || {};
+          if (t.font && t.size) {
+            await document.fonts.load(`${t.size}px "${t.font}"`);
+          }
+        }
+
+        ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+        for (const key in template.variables) {
+          const t = template.variables[key] || {};
+          if (!t.size || !t.font || !t.color || !t.align || t.x === undefined || t.y === undefined) {
+            console.warn(`Invalid variable data for ${key}, skipping`);
+            continue;
+          }
+          ctx.font = `${t.size}px "${t.font}"`;
+          ctx.fillStyle = t.color;
+          ctx.textAlign = t.align;
+          const val = currentPosterData[key] || "";
+          ctx.fillText(val, t.x / 100 * canvas.width, t.y / 100 * canvas.height);
+        }
+
+        currentPosterImg = canvas.toDataURL();
+        document.getElementById("previewImg").src = currentPosterImg;
+      } catch (error) {
+        console.error("Error changing template:", error.message || error);
+        alert(`Failed to change template: ${error.message || "Unknown error"}`);
+      }
+    };
+
+    window.downloadPoster = () => {
+      try {
+        const link = document.createElement("a");
+        link.href = currentPosterImg;
+        link.download = "poster.png";
+        link.click();
+      } catch (error) {
+        console.error("Error downloading poster:", error);
+        alert("Failed to download poster: " + error.message);
+      }
+    };
+
+    window.sharePoster = async () => {
+      if (navigator.share) {
+        try {
+          const response = await fetch(currentPosterImg);
+          const blob = await response.blob();
+          const file = new File([blob], "poster.png", { type: "image/png" });
+          await navigator.share({
+            title: "Poster",
+            files: [file]
+          });
+        } catch (error) {
+          console.error("Error sharing poster:", error);
+          alert("Error sharing poster: " + error.message);
+        }
+      } else {
+        alert("Sharing not supported on this device");
+      }
+    };
+
+    window.closePreview = () => {
+      document.getElementById("previewModal").classList.add("hidden");
+    };
+  </script>
+</body>
+</html>

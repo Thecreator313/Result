@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Template</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    /* Define custom fonts using @font-face */
+    @font-face {
+      font-family: 'Roboto';
+      src: url('./assets/fonts/Roboto-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Montserrat';
+      src: url('./assets/fonts/Montserrat-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+         @font-face {
+      font-family: 'anek';
+      src: url('./assets/fonts/AnekMalayalam_Condensed-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+            @font-face {
+      font-family: 'anek-light';
+      src: url('./assets/fonts/AnekMalayalam_Condensed-Light.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'OpenSans';
+      src: url('./assets/fonts/OpenSans-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    /* Add more @font-face rules for other fonts in assets/fonts as needed */
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-4">
+  <h1 class="text-2xl font-bold mb-4">Create Template</h1>
+
+  <input id="templateName" type="text" placeholder="Template Name" class="w-full mb-4 p-2 bg-gray-800 border border-gray-600 rounded"/>
+
+  <input id="bgImage" type="file" accept="image/*" class="mb-4 text-white"/>
+  <div id="previewWrapper" class="w-full max-w-sm aspect-square relative bg-black overflow-hidden mx-auto">
+    <canvas id="bgPreview" width="1080" height="1080" class="w-full h-full object-contain"></canvas>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-2">
+    <select id="currentField" class="bg-gray-800 border border-gray-600 rounded p-2">
+      <option value="">-- Select Text Field --</option>
+      <option value="program">Program Name</option>
+      <option value="category">Category</option>
+      <option value="number">Result Number</option>
+      <option value="firstName">First Name</option>
+      <option value="firstTeam">First Team</option>
+      <option value="secondName">Second Name</option>
+      <option value="secondTeam">Second Team</option>
+      <option value="thirdName">Third Name</option>
+      <option value="thirdTeam">Third Team</option>
+    </select>
+    <input id="fieldValue" type="text" placeholder="Default Text" class="bg-gray-800 border border-gray-600 rounded p-2"/>
+    <input id="xPos" type="number" placeholder="X (%)" min="0" max="100" class="bg-gray-800 border border-gray-600 rounded p-2"/>
+    <input id="yPos" type="number" placeholder="Y (%)" min="0" max="100" class="bg-gray-800 border border-gray-600 rounded p-2"/>
+    <input id="fontSize" type="number" placeholder="Font Size (30-100)" min="10" max="200" class="bg-gray-800 border border-gray-600 rounded p-2"/>
+    <input id="color" type="color" class="bg-gray-800 border border-gray-600 rounded p-2"/>
+    <select id="align" class="bg-gray-800 border border-gray-600 rounded p-2">
+      <option value="left">Left</option>
+      <option value="center">Center</option>
+      <option value="right">Right</option>
+    </select>
+    <select id="font" class="bg-gray-800 border border-gray-600 rounded p-2">
+      <option value="sans-serif">Sans Serif</option>
+      <option value="serif">Serif</option>
+      <option value="cursive">Cursive</option>
+      <option value="monospace">Monospace</option>
+      <option value="Roboto">Roboto</option>
+      <option value="Montserrat">Montserrat</option>
+      <option value="OpenSans">OpenSans</option>
+      <option value="anek">anek</option>
+<option value="anek-light">anek-light</option>
+      <!-- Add more options for other fonts as needed -->
+    </select>
+  </div>
+
+  <button onclick="saveTemplate()" class="mt-4 bg-green-500 hover:bg-green-600 text-black font-bold px-4 py-2 rounded w-full">
+    💾 Save Template
+  </button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqS0OmR0Tq-HyXm1XNQTK3lnDjh_vOJSg",
+      authDomain: "asdf-1f4f7.firebaseapp.com",
+      databaseURL: "https://asdf-1f4f7-default-rtdb.firebaseio.com",
+      projectId: "asdf-1f4f7",
+      storageBucket: "asdf-1f4f7.firebasestorage.app",
+      messagingSenderId: "79838848864",
+      appId: "1:79838848864:web:450a89b6b59063aa032005"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const variables = {};
+
+    const bgImage = document.getElementById("bgImage");
+    const bgPreview = document.getElementById("bgPreview");
+    const ctx = bgPreview.getContext("2d");
+    const inputs = ['currentField', 'fieldValue', 'xPos', 'yPos', 'fontSize', 'color', 'align', 'font'];
+
+    let imageUrl = "";
+    let bgImgObj = null;
+
+    bgImage.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await axios.post("https://api.imgbb.com/1/upload?key=239799d1451958ed5fdb7518ce247e85", formData);
+      imageUrl = res.data.data.url;
+      bgImgObj = new Image();
+      bgImgObj.crossOrigin = "anonymous";
+      bgImgObj.src = imageUrl;
+      await new Promise(resolve => { bgImgObj.onload = resolve; });
+      updatePreview();
+    });
+
+    async function updatePreview() {
+      const field = document.getElementById("currentField").value;
+      if (!field) return;
+
+      const value = document.getElementById("fieldValue").value || "Sample Text";
+      const x = +document.getElementById("xPos").value || 50;
+      const y = +document.getElementById("yPos").value || 50;
+      const size = +document.getElementById("fontSize").value || 30;
+      const color = document.getElementById("color").value || "#ffffff";
+      const align = document.getElementById("align").value || "left";
+      const font = document.getElementById("font").value || "sans-serif";
+
+      // Ensure font is loaded before rendering
+      await document.fonts.load(`${size}px ${font}`);
+
+      variables[field] = { x, y, size, color, align, font, value };
+
+      // Clear canvas
+      ctx.clearRect(0, 0, bgPreview.width, bgPreview.height);
+
+      // Draw background if available
+      if (bgImgObj) {
+        ctx.drawImage(bgImgObj, 0, 0, 1080, 1080);
+      }
+
+      // Draw all text fields
+      for (const key in variables) {
+        const t = variables[key];
+        ctx.font = `${t.size}px "${t.font}"`;
+        ctx.fillStyle = t.color;
+        ctx.textAlign = t.align;
+        const val = key === field ? value : (t.value || "Sample Text");
+        ctx.fillText(val, t.x / 100 * 1080, t.y / 100 * 1080);
+      }
+    }
+
+    inputs.forEach(id => {
+      document.getElementById(id).addEventListener("input", updatePreview);
+    });
+
+    window.saveTemplate = function () {
+      const name = document.getElementById("templateName").value;
+      if (!name || !imageUrl) return alert("Please enter template name and upload image");
+      const newRef = push(ref(db, "templates"));
+      set(newRef, {
+        name,
+        image: imageUrl,
+        variables
+      }).then(() => {
+        alert("Template saved!");
+        location.href = "templates.html";
+      });
+    };
+  </script>
+</body>
+</html>

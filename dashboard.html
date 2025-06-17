@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    // Firebase setup
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyDgc1-JQaWpDWGxnK_D0g9S_G6jrhI0iG8",
+  authDomain: "sahithyotsavu-7f6d1.firebaseapp.com",
+  projectId: "sahithyotsavu-7f6d1",
+  storageBucket: "sahithyotsavu-7f6d1.firebasestorage.app",
+  messagingSenderId: "544493750372",
+  appId: "1:544493750372:web:ac8cebaf64f7447a6d3771",
+  measurementId: "G-C3JLLH88RK"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Function to load counts
+    async function loadDashboard() {
+      const dbRef = ref(db);
+      try {
+        const snapshot = await get(dbRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+
+          // Count total generated posters
+          const generatedCount = data.generated ? Object.keys(data.generated).length : 0;
+          
+          // Count published posters (where publish is true)
+          const publishedCount = data.generated 
+            ? Object.values(data.generated).filter(item => item.publish === true).length 
+            : 0;
+
+          const templateCount = data.templates ? Object.keys(data.templates).length : 0;
+          const teamCount = data.teams ? Object.keys(data.teams).length : 0;
+
+          document.getElementById('generatedCount').innerText = generatedCount;
+          document.getElementById('publishedCount').innerText = publishedCount;
+          document.getElementById('templateCount').innerText = templateCount;
+          document.getElementById('teamCount').innerText = teamCount;
+        }
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadDashboard);
+  </script>
+</head>
+<body class="bg-gray-950 text-white min-h-screen p-4">
+
+  <h1 class="text-2xl font-bold mb-4">📊 Dashboard</h1>
+
+  <div class="grid gap-4 md:grid-cols-4">
+    <div class="bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-800">
+      <h2 class="text-sm text-gray-400">Generated Posters</h2>
+      <div id="generatedCount" class="text-4xl font-bold mt-2 text-yellow-400">0</div>
+    </div>
+
+    <div class="bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-800">
+      <h2 class="text-sm text-gray-400">Published Posters</h2>
+      <div id="publishedCount" class="text-4xl font-bold mt-2 text-purple-400">0</div>
+    </div>
+
+    <div class="bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-800">
+      <h2 class="text-sm text-gray-400">Templates</h2>
+      <div id="templateCount" class="text-4xl font-bold mt-2 text-blue-400">0</div>
+    </div>
+
+    <div class="bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-800">
+      <h2 class="text-sm text-gray-400">Teams</h2>
+      <div id="teamCount" class="text-4xl font-bold mt-2 text-green-400">0</div>
+    </div>
+  </div>
+
+</body>
+</html>

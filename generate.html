@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Poster</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Roboto';
+      src: url('./assets/fonts/Roboto-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+@font-face {
+      font-family: 'NeulisAlt-Bold';
+      src: url('./assets/fonts/NeulisAlt-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+@font-face {
+      font-family: 'NeulisAlt-Medium';
+      src: url('./assets/fonts/NeulisAlt-Medium.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+@font-face {
+      font-family: 'NeulisAlt-Regular';
+      src: url('./assets/fonts/NeulisAlt-Regular.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+@font-face {
+      font-family: 'Nexa-Heavy';
+      src: url('./assets/fonts/Nexa-Heavy.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Montserrat';
+      src: url('./assets/fonts/Montserrat-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'OpenSans';
+      src: url('./assets/fonts/OpenSans-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'anek';
+      src: url('./assets/fonts/AnekMalayalam_Condensed-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'anek-light';
+      src: url('./assets/fonts/AnekMalayalam_Condensed-Light.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+    .tab-active {
+      background-color: #facc15;
+      color: #1f2937;
+      font-weight: bold;
+    }
+    .error-message {
+      color: #ff4444;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white p-4">
+  <h1 class="text-xl font-bold mb-4">🎨 Generate Poster</h1>
+
+  <div class="mb-4">
+    <input id="searchProgram" class="w-full p-2 bg-gray-700 rounded" placeholder="Search by Program Name" oninput="filterPosters()"/>
+  </div>
+
+  <div id="posterList" class="space-y-4"></div>
+
+  <button onclick="openBottomSheet()" class="fixed bottom-4 right-4 bg-green-500 text-black px-6 py-3 rounded-full shadow-lg">➕ Generate Poster</button>
+
+  <!-- Bottom Sheet Form -->
+  <div id="bottomSheet" class="fixed inset-x-0 bottom-0 bg-gray-800 border-t border-gray-700 p-4 rounded-t-2xl hidden z-20">
+    <h2 class="text-lg font-bold mb-2">Poster Form</h2>
+    <div class="flex mb-4">
+      <button id="tabAutomatic" onclick="switchTab('automatic')" class="flex-1 py-2 px-4 rounded-l-lg bg-gray-700 hover:bg-gray-600 tab-active">Automatic</button>
+      <button id="tabManual" onclick="switchTab('manual')" class="flex-1 py-2 px-4 rounded-r-lg bg-gray-700 hover:bg-gray-600">Manual</button>
+    </div>
+    <div id="automaticFields">
+      <select id="templateSelect" class="w-full mb-2 p-2 bg-gray-700 rounded"></select>
+      <select id="category" class="w-full mb-2 p-2 bg-gray-700 rounded"><option value="" disabled selected>Select Category</option></select>
+      <input id="program" class="w-full mb-2 p-2 bg-gray-700 rounded" placeholder="Program Name"/>
+      <input id="number" type="number" class="w-full mb-2 p-2 bg-gray-700 rounded" placeholder="Result Number"/>
+      <input id="firstName" class="w-full mb-2 p-2 bg-gray-700 rounded" placeholder="First Name"/>
+      <select id="firstTeam" class="w-full mb-2 p-2 bg-gray-700 rounded"><option value="" disabled selected>Select Team</option></select>
+      <input id="secondName" class="w-full mb-2 p-2 bg-gray-700 rounded" placeholder="Second Name"/>
+      <select id="secondTeam" class="w-full mb-2 p-2 bg-gray-700 rounded"><option value="" disabled selected>Select Team</option></select>
+      <input id="thirdName" class="w-full mb-2 p-2 bg-gray-700 rounded" placeholder="Third Name"/>
+      <select id="thirdTeam" class="w-full mb-2 p-2 bg-gray-700 rounded"><option value="" disabled selected>Select Team</option></select>
+    </div>
+    <div id="manualFields" class="hidden">
+      <select id="manualCategory" class="w-full mb-2 p-2 bg-gray-700 rounded"><option value="" disabled selected>Select Category</option></select>
+      <input id="manualProgram" class="w-full mb-2 p-2 bg-gray-700 rounded" placeholder="Program Name"/>
+      <input id="manualNumber" type="number" class="w-full mb-2 p-2 bg-gray-700 rounded" placeholder="Result Number"/>
+      <input id="manualImage" type="file" accept="image/*" class="w-full mb-2 p-2 bg-gray-700 rounded"/>
+      <div id="manualError" class="error-message hidden"></div>
+    </div>
+    <button onclick="generatePoster()" id="submitButton" class="mt-3 w-full bg-yellow-400 text-black px-4 py-2 font-bold rounded">✅ Generate</button>
+    <button onclick="closeBottomSheet()" class="mt-2 w-full text-sm text-red-400 underline">Cancel</button>
+  </div>
+
+  <!-- Preview Modal -->
+  <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-80 z-30 hidden flex items-center justify-center">
+    <div class="bg-gray-800 text-white p-6 rounded-lg max-w-md w-full relative">
+      <img id="previewImg" class="w-full rounded mb-4" src="" alt="Generated Poster" />
+      <div id="templateSelection" class="mb-4">
+        <label class="block text-sm font-bold mb-2">Select Template:</label>
+        <div id="templateButtons" class="flex gap-2 flex-wrap"></div>
+      </div>
+      <div class="flex items-center mb-4">
+        <label class="mr-2">Publish:</label>
+        <input id="publishToggle" type="checkbox" class="toggle bg-gray-700 border-gray-600 text-yellow-400" onchange="updatePublishStatus()"/>
+      </div>
+      <div class="flex justify-between">
+        <button onclick="downloadPoster()" class="bg-blue-500 text-white px-3 py-1 rounded">Download</button>
+        <button onclick="sharePoster()" class="bg-green-500 text-white px-3 py-1 rounded">Share</button>
+        <button onclick="closePreview()" class="text-red-500 underline">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import {
+      getDatabase, ref, onValue, push, set, update, remove, get, child
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    // Initialize Firebase
+    const firebaseConfig = {
+  apiKey: "AIzaSyDgc1-JQaWpDWGxnK_D0g9S_G6jrhI0iG8",
+  authDomain: "sahithyotsavu-7f6d1.firebaseapp.com",
+  projectId: "sahithyotsavu-7f6d1",
+  storageBucket: "sahithyotsavu-7f6d1.firebasestorage.app",
+  messagingSenderId: "544493750372",
+  appId: "1:544493750372:web:ac8cebaf64f7447a6d3771",
+  measurementId: "G-C3JLLH88RK"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // ImgBB API key (replace with your actual ImgBB API key)
+    const IMGBB_API_KEY = "239799d1451958ed5fdb7518ce247e85"; // Obtain from https://imgbb.com/api
+
+    const teamSelects = ["firstTeam", "secondTeam", "thirdTeam"];
+    const templateSelect = document.getElementById("templateSelect");
+    const categorySelect = document.getElementById("category");
+    const manualCategorySelect = document.getElementById("manualCategory");
+
+    let currentPosterImg = "";
+    let currentPosterId = "";
+    let currentPosterData = {};
+    let allPosters = [];
+    let currentTab = "automatic";
+
+    const postersRef = ref(db, "generated");
+    const templatesRef = ref(db, "templates");
+    const teamsRef = ref(db, "teams");
+    const categoriesRef = ref(db, "category");
+
+    // Switch between tabs
+    window.switchTab = (tab) => {
+      currentTab = tab;
+      document.getElementById("tabAutomatic").classList.toggle("tab-active", tab === "automatic");
+      document.getElementById("tabManual").classList.toggle("tab-active", tab === "manual");
+      document.getElementById("automaticFields").classList.toggle("hidden", tab !== "automatic");
+      document.getElementById("manualFields").classList.toggle("hidden", tab !== "manual");
+      document.getElementById("manualError").classList.add("hidden");
+    };
+
+    // Populate poster list
+    onValue(postersRef, snap => {
+      const container = document.getElementById("posterList");
+      container.innerHTML = "";
+      const data = snap.val();
+      if (!data) return container.innerHTML = "No posters yet";
+
+      allPosters = Object.entries(data).map(([id, item]) => ({ id, ...item }));
+      allPosters.sort((a, b) => (parseInt(b.number) || 0) - (parseInt(a.number) || 0));
+      filterPosters();
+    });
+
+    window.filterPosters = () => {
+      const searchTerm = document.getElementById("searchProgram").value.toLowerCase();
+      const container = document.getElementById("posterList");
+      container.innerHTML = "";
+
+      const filteredPosters = allPosters.filter(poster => 
+        poster.program.toLowerCase().includes(searchTerm)
+      );
+
+      if (filteredPosters.length === 0) {
+        container.innerHTML = "No posters found";
+        return;
+      }
+
+      filteredPosters.forEach(({ id, ...item }) => {
+        const div = document.createElement("div");
+        div.className = "bg-gray-800 rounded p-3 flex items-center gap-3";
+        div.innerHTML = `
+          <div class="bg-yellow-400 text-black rounded-full w-10 h-10 flex items-center justify-center font-bold">${item.number || 'N/A'}</div>
+          <div class="flex-1">
+            <div class="font-bold">${item.program}</div>
+            <div class="text-sm text-gray-300">${item.category} (${item.type || 'automatic'})</div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="previewPoster('${id}')" class="text-green-400">👁</button>
+            <button onclick="editPoster('${id}')" class="text-blue-400">✏️</button>
+            <button onclick="deletePoster('${id}')" class="text-red-400">🗑</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    };
+
+    // Populate dropdowns
+    onValue(templatesRef, snap => {
+      templateSelect.innerHTML = "<option value='' disabled selected>Select Template</option>";
+      const data = snap.val();
+      if (!data) return;
+      for (const id in data) {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = data[id].name;
+        templateSelect.appendChild(opt);
+      }
+    });
+
+    onValue(teamsRef, snap => {
+      teamSelects.forEach(id => {
+        const sel = document.getElementById(id);
+        sel.innerHTML = "<option value='' disabled selected>Select Team</option>";
+        const teams = snap.val() || {};
+        for (const team in teams) {
+          const opt = document.createElement("option");
+          opt.value = teams[team].name;
+          opt.textContent = teams[team].name;
+          sel.appendChild(opt);
+        }
+      });
+    });
+
+    onValue(categoriesRef, snap => {
+      const data = snap.val() || {};
+      [categorySelect, manualCategorySelect].forEach(sel => {
+        sel.innerHTML = "<option value='' disabled selected>Select Category</option>";
+        if (!data) {
+          sel.innerHTML += "<option value='' disabled>No categories available</option>";
+          return;
+        }
+        for (const id in data) {
+          const opt = document.createElement("option");
+          opt.value = data[id].name;
+          opt.textContent = data[id].name;
+          sel.appendChild(opt);
+        }
+      });
+    });
+
+    window.openBottomSheet = (editMode = false, posterId = "") => {
+      document.getElementById("bottomSheet").classList.remove("hidden");
+      switchTab("automatic");
+      if (!editMode) {
+        document.getElementById("submitButton").textContent = "✅ Generate";
+        document.getElementById("submitButton").onclick = generatePoster;
+        clearForm();
+      }
+    };
+
+    function clearForm() {
+      document.getElementById("program").value = "";
+      document.getElementById("category").value = "";
+      document.getElementById("number").value = "";
+      document.getElementById("firstName").value = "";
+      document.getElementById("firstTeam").value = "";
+      document.getElementById("secondName").value = "";
+      document.getElementById("secondTeam").value = "";
+      document.getElementById("thirdName").value = "";
+      document.getElementById("thirdTeam").value = "";
+      document.getElementById("templateSelect").value = "";
+      document.getElementById("manualProgram").value = "";
+      document.getElementById("manualCategory").value = "";
+      document.getElementById("manualNumber").value = "";
+      document.getElementById("manualImage").value = "";
+      document.getElementById("manualError").classList.add("hidden");
+    }
+
+    window.closeBottomSheet = () => {
+      document.getElementById("bottomSheet").classList.add("hidden");
+      clearForm();
+    };
+
+    window.generatePoster = async () => {
+      try {
+        document.getElementById("submitButton").disabled = true;
+        if (currentTab === "automatic") {
+          const newPoster = {
+            type: "automatic",
+            program: document.getElementById("program").value,
+            category: document.getElementById("category").value,
+            number: document.getElementById("number").value,
+            firstName: document.getElementById("firstName").value,
+            firstTeam: document.getElementById("firstTeam").value,
+            secondName: document.getElementById("secondName").value,
+            secondTeam: document.getElementById("secondTeam").value,
+            thirdName: document.getElementById("thirdName").value,
+            thirdTeam: document.getElementById("thirdTeam").value,
+            templateId: document.getElementById("templateSelect").value,
+            publish: false,
+            timestamp: Date.now()
+          };
+          if (!newPoster.templateId || !newPoster.program || !newPoster.category) {
+            throw new Error("Template, program, and category are required");
+          }
+          const id = push(postersRef);
+          await set(id, newPoster);
+          alert("Automatic poster generated!");
+        } else {
+          const file = document.getElementById("manualImage").files[0];
+          if (!file) throw new Error("Please select an image");
+          if (!file.type.startsWith("image/")) throw new Error("Please select an image file");
+          const newPoster = {
+            type: "manual",
+            program: document.getElementById("manualProgram").value,
+            category: document.getElementById("manualCategory").value,
+            number: document.getElementById("manualNumber").value,
+            publish: false,
+            timestamp: Date.now()
+          };
+          if (!newPoster.program || !newPoster.category) {
+            throw new Error("Program and category are required");
+          }
+          document.getElementById("manualError").classList.add("hidden");
+          const formData = new FormData();
+          formData.append("image", file);
+          formData.append("key", IMGBB_API_KEY);
+          const response = await fetch("https://api.imgbb.com/1/upload", {
+            method: "POST",
+            body: formData
+          });
+          if (!response.ok) throw new Error(`ImgBB upload failed: ${response.statusText}`);
+          const result = await response.json();
+          if (!result.success || !result.data.url) throw new Error("ImgBB upload failed: Invalid response");
+          newPoster.imageUrl = result.data.url;
+          const id = push(postersRef);
+          await set(id, newPoster);
+          alert("Manual poster generated!");
+        }
+        closeBottomSheet();
+      } catch (error) {
+        console.error("Error generating poster:", error);
+        if (currentTab === "manual") {
+          document.getElementById("manualError").textContent = error.message;
+          document.getElementById("manualError").classList.remove("hidden");
+        } else {
+          alert("Failed to generate poster: " + error.message);
+        }
+      } finally {
+        document.getElementById("submitButton").disabled = false;
+      }
+    };
+
+    window.editPoster = async (posterId) => {
+      try {
+        const snapshot = await get(child(ref(db), "generated/" + posterId));
+        const poster = snapshot.val();
+        openBottomSheet(true, posterId);
+        document.getElementById("submitButton").textContent = "✅ Update";
+        document.getElementById("submitButton").onclick = () => updatePoster(posterId);
+        switchTab(poster.type || "automatic");
+        if (poster.type === "manual") {
+          document.getElementById("manualProgram").value = poster.program || "";
+          document.getElementById("manualCategory").value = poster.category || "";
+          document.getElementById("manualNumber").value = poster.number || "";
+        } else {
+          document.getElementById("program").value = poster.program || "";
+          document.getElementById("category").value = poster.category || "";
+          document.getElementById("number").value = poster.number || "";
+          document.getElementById("firstName").value = poster.firstName || "";
+          document.getElementById("firstTeam").value = poster.firstTeam || "";
+          document.getElementById("secondName").value = poster.secondName || "";
+          document.getElementById("secondTeam").value = poster.secondTeam || "";
+          document.getElementById("thirdName").value = poster.thirdName || "";
+          document.getElementById("thirdTeam").value = poster.thirdTeam || "";
+          document.getElementById("templateSelect").value = poster.templateId || "";
+        }
+      } catch (error) {
+        console.error("Error editing poster:", error);
+        alert("Failed to load poster: " + error.message);
+      }
+    };
+
+    window.updatePoster = async (posterId) => {
+      try {
+        document.getElementById("submitButton").disabled = true;
+        if (currentTab === "automatic") {
+          const updatedPoster = {
+            type: "automatic",
+            program: document.getElementById("program").value,
+            category: document.getElementById("category").value,
+            number: document.getElementById("number").value,
+            firstName: document.getElementById("firstName").value,
+            firstTeam: document.getElementById("firstTeam").value,
+            secondName: document.getElementById("secondName").value,
+            secondTeam: document.getElementById("secondTeam").value,
+            thirdName: document.getElementById("thirdName").value,
+            thirdTeam: document.getElementById("thirdTeam").value,
+            templateId: document.getElementById("templateSelect").value,
+            publish: currentPosterData.publish || false,
+            timestamp: Date.now()
+          };
+          if (!updatedPoster.templateId || !updatedPoster.program || !updatedPoster.category) {
+            throw new Error("Template, program, and category are required");
+          }
+          await update(ref(db, "generated/" + posterId), updatedPoster);
+          alert("Automatic poster updated!");
+        } else {
+          const file = document.getElementById("manualImage").files[0];
+          const updatedPoster = {
+            type: "manual",
+            program: document.getElementById("manualProgram").value,
+            category: document.getElementById("manualCategory").value,
+            number: document.getElementById("manualNumber").value,
+            publish: currentPosterData.publish || false,
+            timestamp: Date.now()
+          };
+          if (!updatedPoster.program || !updatedPoster.category) {
+            throw new Error("Program and category are required");
+          }
+          if (file) {
+            if (!file.type.startsWith("image/")) throw new Error("Please select an image file");
+            document.getElementById("manualError").classList.add("hidden");
+            const formData = new FormData();
+            formData.append("image", file);
+            formData.append("key", IMGBB_API_KEY);
+            const response = await fetch("https://api.imgbb.com/1/upload", {
+              method: "POST",
+              body: formData
+            });
+            if (!response.ok) throw new Error(`ImgBB upload failed: ${response.statusText}`);
+            const result = await response.json();
+            if (!result.success || !result.data.url) throw new Error("ImgBB upload failed: Invalid response");
+            updatedPoster.imageUrl = result.data.url;
+          } else {
+            updatedPoster.imageUrl = currentPosterData.imageUrl;
+          }
+          await update(ref(db, "generated/" + posterId), updatedPoster);
+          alert("Manual poster updated!");
+        }
+        closeBottomSheet();
+      } catch (error) {
+        console.error("Error updating poster:", error);
+        if (currentTab === "manual") {
+          document.getElementById("manualError").textContent = error.message;
+          document.getElementById("manualError").classList.remove("hidden");
+        } else {
+          alert("Failed to update poster: " + error.message);
+        }
+      } finally {
+        document.getElementById("submitButton").disabled = false;
+      }
+    };
+
+    window.previewPoster = async (posterId) => {
+      try {
+        const snapshot = await get(child(ref(db), "generated/" + posterId));
+        currentPosterData = snapshot.val();
+        currentPosterId = posterId;
+
+        if (currentPosterData.type === "manual") {
+          if (!currentPosterData.imageUrl) throw new Error("No image URL found");
+          currentPosterImg = currentPosterData.imageUrl;
+          document.getElementById("previewImg").src = currentPosterImg;
+          document.getElementById("templateSelection").classList.add("hidden");
+        } else {
+          const templateSnap = await get(child(ref(db), "templates/" + currentPosterData.templateId));
+          const template = templateSnap.val();
+          if (!template || !template.image) throw new Error("Template not found");
+
+          const templatesSnap = await get(templatesRef);
+          const templates = templatesSnap.val();
+          const templateButtons = document.getElementById("templateButtons");
+          templateButtons.innerHTML = "";
+          Object.keys(templates).forEach((id, index) => {
+            const button = document.createElement("button");
+            button.className = "bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center";
+            button.textContent = index + 1;
+            button.onclick = () => changeTemplate(index + 1);
+            templateButtons.appendChild(button);
+          });
+
+          const canvas = document.createElement("canvas");
+          canvas.width = 1080;
+          canvas.height = 1080;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) throw new Error("Failed to get canvas context");
+
+          const bg = new Image();
+          bg.crossOrigin = "anonymous";
+          bg.src = template.image;
+          await new Promise((resolve, reject) => {
+            bg.onload = resolve;
+            bg.onerror = () => reject(new Error("Failed to load template image"));
+          });
+
+          for (const key in template.variables) {
+            const t = template.variables[key] || {};
+            if (t.font && t.size) {
+              await document.fonts.load(`${t.size}px "${t.font}"`);
+            }
+          }
+
+          ctx.drawImage(bg, 0, 0, 1080, 1080);
+          for (const key in template.variables) {
+            const t = template.variables[key];
+            if (!t.size || !t.font || !t.color || !t.align || t.x === undefined || t.y === undefined) {
+              console.warn(`Invalid variable data for ${key}, skipping`);
+              continue;
+            }
+            ctx.font = `${t.size}px "${t.font}"`;
+            ctx.fillStyle = t.color;
+            ctx.textAlign = t.align;
+            const val = currentPosterData[key] || "";
+            ctx.fillText(val, t.x / 100 * 1080, t.y / 100 * 1080);
+          }
+
+          currentPosterImg = canvas.toDataURL();
+          document.getElementById("previewImg").src = currentPosterImg;
+          document.getElementById("templateSelection").classList.remove("hidden");
+        }
+
+        document.getElementById("publishToggle").checked = currentPosterData.publish || false;
+        document.getElementById("previewModal").classList.remove("hidden");
+      } catch (error) {
+        console.error("Error previewing poster:", error);
+        alert("Failed to preview poster: " + error.message);
+      }
+    };
+
+    window.changeTemplate = async (templateNumber) => {
+      try {
+        const templateId = Object.keys((await get(templatesRef)).val())[templateNumber - 1];
+        if (!templateId) throw new Error("Template not found");
+        currentPosterData.templateId = templateId;
+        const templateSnap = await get(child(ref(db), "templates/" + templateId));
+        const template = templateSnap.val();
+        if (!template || !template.image) throw new Error("Template not found");
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 1080;
+        canvas.height = 1080;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Failed to get canvas context");
+
+        const bg = new Image();
+        bg.crossOrigin = "anonymous";
+        bg.src = template.image;
+        await new Promise((resolve, reject) => {
+          bg.onload = resolve;
+          bg.onerror = () => reject(new Error("Failed to load template image"));
+        });
+
+        for (const key in template.variables) {
+          const t = template.variables[key] || {};
+          if (t.font && t.size) {
+            await document.fonts.load(`${t.size}px "${t.font}"`);
+          }
+        }
+
+        ctx.drawImage(bg, 0, 0, 1080, 1080);
+        for (const key in template.variables) {
+          const t = template.variables[key];
+          if (!t.size || !t.font || !t.color || !t.align || t.x === undefined || t.y === undefined) {
+            console.warn(`Invalid variable data for ${key}, skipping`);
+            continue;
+          }
+          ctx.font = `${t.size}px "${t.font}"`;
+          ctx.fillStyle = t.color;
+          ctx.textAlign = t.align;
+          const val = currentPosterData[key] || "";
+          ctx.fillText(val, t.x / 100 * 1080, t.y / 100 * 1080);
+        }
+
+        currentPosterImg = canvas.toDataURL();
+        document.getElementById("previewImg").src = currentPosterImg;
+      } catch (error) {
+        console.error("Error changing template:", error);
+        alert("Failed to change template: " + error.message);
+      }
+    };
+
+    window.updatePublishStatus = async () => {
+      try {
+        const publish = document.getElementById("publishToggle").checked;
+        currentPosterData.publish = publish;
+        await update(ref(db, "generated/" + currentPosterId), { publish });
+      } catch (error) {
+        console.error("Error updating publish status:", error);
+        alert("Failed to update publish status: " + error.message);
+      }
+    };
+
+    window.deletePoster = async (id) => {
+      if (confirm("Delete this poster?")) {
+        try {
+          await remove(ref(db, "generated/" + id));
+        } catch (error) {
+          console.error("Error deleting poster:", error);
+          alert("Failed to delete poster: " + error.message);
+        }
+      }
+    };
+
+    window.closePreview = () => {
+      document.getElementById("previewModal").classList.add("hidden");
+    };
+
+    window.downloadPoster = () => {
+      try {
+        const link = document.createElement("a");
+        link.href = currentPosterImg;
+        link.download = "poster.png";
+        link.click();
+      } catch (error) {
+        console.error("Error downloading poster:", error);
+        alert("Failed to download poster: " + error.message);
+      }
+    };
+
+    window.sharePoster = async () => {
+      if (navigator.share) {
+        try {
+          const response = await fetch(currentPosterImg);
+          const blob = await response.blob();
+          const file = new File([blob], "poster.png", { type: "image/png" });
+          await navigator.share({
+            title: "Poster",
+            files: [file]
+          });
+        } catch (error) {
+          console.error("Error sharing poster:", error);
+          alert("Error sharing poster: " + error.message);
+        }
+      } else {
+        alert("Sharing not supported on this device");
+      }
+    };
+  </script>
+</body>
+</html>

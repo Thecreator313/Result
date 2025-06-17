@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Teams</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import {
+      getDatabase, ref, push, set, onValue, update, remove
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyDgc1-JQaWpDWGxnK_D0g9S_G6jrhI0iG8",
+  authDomain: "sahithyotsavu-7f6d1.firebaseapp.com",
+  projectId: "sahithyotsavu-7f6d1",
+  storageBucket: "sahithyotsavu-7f6d1.firebasestorage.app",
+  messagingSenderId: "544493750372",
+  appId: "1:544493750372:web:ac8cebaf64f7447a6d3771",
+  measurementId: "G-C3JLLH88RK"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const teamsRef = ref(db, "teams");
+
+    const teamList = document.getElementById("teamList");
+    const teamInput = document.getElementById("teamInput");
+
+    function loadTeams() {
+      onValue(teamsRef, (snapshot) => {
+        teamList.innerHTML = "";
+        snapshot.forEach((child) => {
+          const id = child.key;
+          const name = child.val().name;
+
+          const li = document.createElement("li");
+          li.className = "bg-gray-800 text-white p-3 rounded mb-2";
+
+          li.innerHTML = `
+            <div class="flex justify-between items-center">
+              <span class="font-medium text-lg" id="name-${id}">${name}</span>
+              <div>
+                <button onclick="showEditForm('${id}', '${name}')" class="text-yellow-400 mr-2">✏️</button>
+                <button onclick="deleteTeam('${id}')" class="text-red-400">🗑️</button>
+              </div>
+            </div>
+            <div id="editForm-${id}" class="mt-2 hidden">
+              <input type="text" id="editInput-${id}" class="w-full p-2 rounded bg-gray-700 text-white mb-2" value="${name}" />
+              <div class="flex justify-end space-x-2">
+                <button onclick="cancelEdit('${id}')" class="bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded">Cancel</button>
+                <button onclick="saveEdit('${id}')" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded">Update</button>
+              </div>
+            </div>
+          `;
+
+          teamList.appendChild(li);
+        });
+      });
+    }
+
+    window.addTeam = function () {
+      const name = teamInput.value.trim();
+      if (name === "") return alert("Enter a team name");
+      const newRef = push(teamsRef);
+      set(newRef, { name });
+      teamInput.value = "";
+    };
+
+    window.showEditForm = function (id, name) {
+      document.getElementById(`editForm-${id}`).classList.remove("hidden");
+    };
+
+    window.cancelEdit = function (id) {
+      document.getElementById(`editForm-${id}`).classList.add("hidden");
+    };
+
+    window.saveEdit = function (id) {
+      const newName = document.getElementById(`editInput-${id}`).value.trim();
+      if (newName === "") return alert("Team name cannot be empty");
+      update(ref(db, `teams/${id}`), { name: newName }).then(() => {
+        document.getElementById(`editForm-${id}`).classList.add("hidden");
+      });
+    };
+
+    window.deleteTeam = function (id) {
+      if (confirm("Are you sure to delete this team?")) {
+        remove(ref(db, `teams/${id}`));
+      }
+    };
+
+    loadTeams();
+  </script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-4">
+
+  <h1 class="text-2xl font-bold mb-4">Manage Teams</h1>
+
+  <div class="flex mb-4">
+    <input id="teamInput" type="text" placeholder="Enter team name" class="flex-1 p-2 rounded-l bg-gray-800 border border-gray-600 focus:outline-none" />
+    <button onclick="addTeam()" class="bg-blue-600 hover:bg-blue-700 px-4 rounded-r">Add</button>
+  </div>
+
+  <ul id="teamList" class="space-y-2">
+    <!-- Teams will load here -->
+  </ul>
+
+</body>
+</html>
