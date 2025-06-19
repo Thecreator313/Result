@@ -333,8 +333,8 @@
           });
 
           const canvas = document.createElement("canvas");
-          canvas.width = template.width || 1080;
-          canvas.height = template.height || 1080;
+          canvas.width = template.width || 3000;
+          canvas.height = template.height || 3000;
           const ctx = canvas.getContext("2d");
           if (!ctx) throw new Error("Failed to get canvas context");
 
@@ -390,8 +390,8 @@
         if (!template.image) throw new Error("Template image URL is missing");
 
         const canvas = document.createElement("canvas");
-        canvas.width = template.width || 1080;
-        canvas.height = template.height || 1080;
+        canvas.width = template.width || 3000;
+        canvas.height = template.height || 3000;
         const ctx = canvas.getContext("2d");
         if (!ctx) throw new Error("Failed to get canvas context");
 
