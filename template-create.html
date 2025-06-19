@@ -158,7 +158,7 @@
 
   <input id="bgImage" type="file" accept="image/*" class="mb-4 text-white"/>
   <div id="previewWrapper" class="w-full max-w-sm aspect-square relative bg-black overflow-hidden mx-auto">
-    <canvas id="bgPreview" width="1080" height="1080" class="w-full h-full object-contain"></canvas>
+    <canvas id="bgPreview" width="3000" height="3000" class="w-full h-full object-contain"></canvas>
   </div>
 
   <div class="mt-4 grid grid-cols-2 gap-2">
@@ -273,7 +273,7 @@
 
       // Draw background if available
       if (bgImgObj) {
-        ctx.drawImage(bgImgObj, 0, 0, 1080, 1080);
+        ctx.drawImage(bgImgObj, 0, 0, 3000, 3000);
       }
 
       // Draw all text fields
@@ -283,7 +283,7 @@
         ctx.fillStyle = t.color;
         ctx.textAlign = t.align;
         const val = key === field ? value : (t.value || "Sample Text");
-        ctx.fillText(val, t.x / 100 * 1080, t.y / 100 * 1080);
+        ctx.fillText(val, t.x / 100 * 3000, t.y / 100 * 3000);
       }
     }
 
