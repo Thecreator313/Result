@@ -297,7 +297,9 @@
 
       filteredPosters.forEach(({ id, ...item }) => {
         const div = document.createElement("div");
-        div.className = "bg-gray-800 rounded p-3 flex items-center gap-3";
+       div.className = `bg-gray-800 rounded p-3 flex items-center gap-3 border-2 ${
+  item.publish === false ? 'border-red-500' : 'border-transparent'
+}`;
         div.innerHTML = `
           <div class="bg-yellow-400 text-black rounded-full w-10 h-10 flex items-center justify-center font-bold">${item.number || 'N/A'}</div>
           <div class="flex-1">
