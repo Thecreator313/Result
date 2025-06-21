@@ -7,38 +7,38 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
-<body class="bg-gray-900 text-white p-4 flex flex-col min-h-screen">
-  <h1 class="text-xl font-bold mb-4 text-yellow-400">🏆 Team Points</h1>
+<body class="bg-white text-black p-4 flex flex-col min-h-screen">
+  <h1 class="text-xl font-bold mb-4 text-blue-600">🏆 Team Points</h1>
 
   <!-- Notification Container -->
   <div id="notification" class="fixed top-4 right-4 z-50 hidden"></div>
 
-  <div class="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl p-4 mb-4 shadow-xl border border-gray-600 hover:shadow-yellow-400/20 transition-shadow duration-300">
+  <div class="bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl p-4 mb-4 shadow-xl border border-gray-400 hover:shadow-blue-500/20 transition-shadow duration-300">
     <div class="flex justify-between items-center">
-      <div class="text-lg font-bold text-yellow-400">Results after:</div>
-      <div class="text-lg font-bold text-yellow-400"><span id="resultsNumber">0</span></div>
+      <div class="text-lg font-bold text-blue-600">Results after:</div>
+      <div class="text-lg font-bold text-blue-600"><span id="resultsNumber">0</span></div>
     </div>
   </div>
 
   <div id="teamList" class="space-y-3 mb-8"></div>
 
   <div class="flex justify-center">
-    <button onclick="previewPoster()" class="bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200 shadow-md">Preview Poster</button>
+    <button onclick="previewPoster()" class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-400 transition-colors duration-200 shadow-md">Preview Poster</button>
   </div>
 
   <!-- Footer -->
-  <footer class="mt-auto bg-gray-800 rounded-lg py-2 text-center text-gray-300 text-sm">
-    <p>©2025 SSF Nellikuth sector | Developed by <a href="https://wa.me/9744460317" target="_blank" class="text-yellow-400 hover:text-yellow-300 underline">Ozonegraphics</a></p>
+  <footer class="mt-auto bg-gray-200 rounded-lg py-2 text-center text-gray-700 text-sm">
+    <p>©2025 SSF Nellikuth sector | Developed by <a href="https://wa.me/9744460317" target="_blank" class="text-blue-600 hover:text-blue-500 underline">Ozonegraphics</a></p>
   </footer>
 
   <!-- Preview Modal -->
   <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-80 z-30 hidden flex items-center justify-center">
-    <div class="bg-gray-800 text-white p-6 rounded-lg max-w-[90vw] max-h-[90vh] w-auto relative shadow-xl overflow-auto">
+    <div class="bg-white text-black p-6 rounded-lg max-w-[90vw] max-h-[90vh] w-auto relative shadow-xl overflow-auto">
       <img id="previewImg" class="w-auto h-auto max-w-full max-h-[80vh] rounded mb-4" alt="Team Poster" />
       <div class="flex justify-between">
         <button onclick="downloadPoster()" class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-400 transition-colors duration-200">Download</button>
         <button onclick="sharePoster()" class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-400 transition-colors duration-200">Share</button>
-        <button onclick="closePreview()" class="text-red-500 underline hover:text-red-400">Cancel</button>
+        <button onclick="closePreview()" class="text-red-600 underline hover:text-red-500">Cancel</button>
       </div>
     </div>
   </div>
@@ -116,10 +116,10 @@
 
       teamsArray.forEach(({ id, ...team }) => {
         const div = document.createElement("div");
-        div.className = "bg-gray-800 rounded-lg p-3 flex justify-between items-center hover:bg-gray-700 transition-colors duration-200";
+        div.className = "bg-gray-100 rounded-lg p-3 flex justify-between items-center hover:bg-gray-200 transition-colors duration-200";
         div.innerHTML = `
-          <div class="text-gray-300">${team.name || "Unnamed Team"}</setf>
-          <div class="font-bold text-yellow-400">${team.mark || 0}</div>
+          <div class="text-gray-700">${team.name || "Unnamed Team"}</div>
+          <div class="font-bold text-blue-600">${team.mark || 0}</div>
         `;
         container.appendChild(div);
       });
@@ -213,7 +213,7 @@
     }
     @keyframes slideIn {
       from {
-        transform: translateX(100%);
+irono      transform: translateX(100%);
         opacity: 0;
       }
       to {
