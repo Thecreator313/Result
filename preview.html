@@ -86,7 +86,7 @@
     }
 @font-face {
       font-family: 'Poppins-Light';
-      src: url('./assets/fonts/Poppins-Light.ttf') format('truetype');
+      src: url('./assets/fonts/Poppins-Light.ttf')"></script>
       font-weight: bold;
       font-style: normal;
     }
@@ -109,15 +109,16 @@
       src: url('./assets/fonts/NeulisAlt-Regular.ttf') format('truetype');
       font-weight: bold;
       font-style: normal;
-    }
+}
+
 @font-face {
       font-family: 'Nexa-Heavy';
       src: url('./assets/fonts/Nexa-Heavy.ttf') format('truetype');
-      font-weight: bold;
+      font-weight: normal;
       font-style: normal;
     }
     @font-face {
-      font-family: 'AnekMalayalam-Bold';
+      font-family: 'AnekMalayalam';
       src: url('./assets/fonts/AnekMalayalam-Bold.ttf') format('truetype');
       font-weight: bold;
       font-style: normal;
@@ -127,8 +128,7 @@
       src: url('./assets/fonts/AnekMalayalam-Light.ttf') format('truetype');
       font-weight: bold;
       font-style: normal;
-}
-
+    }
          @font-face {
       font-family: 'anek';
       src: url('./assets/fonts/AnekMalayalam_Condensed-Bold.ttf') format('truetype');
@@ -156,43 +156,43 @@
     }
   </style>
 </head>
-<body class="bg-gray-900 text-white p-4 flex flex-col min-h-screen">
+<body class="bg-white text-black p-4 flex flex-col min-h-screen">
   <h1 class="text-xl font-bold mb-4">🎨 Poster Preview</h1>
 
   <div class="mb-4">
-    <input id="searchProgram" class="w-full p-2 bg-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-400" placeholder="Search by Program Name" oninput="filterPosters()"/>
+    <input id="searchProgram" class="text-black w-full p-2 bg-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Search by Program Name" oninput="filterPosters()"/>
   </div>
 
   <div class="mb-4 flex justify-center">
-    <img id="adImage" src="" alt="Advertisement" class="w-[99%] h-auto rounded-lg shadow-lg border-2 border-gray-700"/>
+    <img id="adImage" src="" alt="Advertisement" class="w-[99%] h-auto rounded-lg shadow-lg border-2 border-gray-300"/>
   </div>
 
-  <div class="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl p-4 mb-4 shadow-xl border border-gray-600 hover:shadow-yellow-400/20 transition-shadow duration-300">
+  <div class="bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl p-4 mb-4 shadow-xl border border-gray-400 hover:shadow-blue-500/20 transition-shadow duration-300">
     <div class="flex justify-between items-center">
-      <div class="text-lg font-bold text-yellow-400">Published Results: <span id="publishedCount">0</span></div>
-      <a href="team-points.html" class="bg-yellow-400 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition-colors duration-200">Team Points</a>
+      <div class="text-lg font-bold text-blue-600">Published Results: <span id="publishedCount">0</span></div>
+      <a href="team-points.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-400 transition-colors duration-200">Team Points</a>
     </div>
   </div>
 
   <div id="posterList" class="space-y-4 mb-8"></div>
 
   <!-- Footer -->
-  <footer class="mt-auto bg-gray-800 rounded-lg py-2 text-center text-gray-300 text-sm">
-    <p>©2025 SSF Nellikuth sector | Designed by <a href="https://wa.me/9744460317" target="_blank" class="text-yellow-400 hover:text-yellow-300 underline">ozonegraphics</a></p>
+  <footer class="mt-auto bg-gray-200 rounded-lg py-2 text-center text-gray-700 text-sm">
+    <p>©2025 SSF Nellikuth sector | Designed by <a href="https://wa.me/9744460317" target="_blank" class="text-blue-600 hover:text-blue-500 underline">ozonegraphics</a></p>
   </footer>
 
   <!-- Preview Modal -->
   <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-80 z-30 hidden flex items-center justify-center">
-    <div class="bg-gray-800 text-white p-6 rounded-lg max-w-[90vw] max-h-[90vh] w-auto relative shadow-xl overflow-auto">
+    <div class="bg-white text-black p-6 rounded-lg max-w-[90vw] max-h-[90vh] w-auto relative shadow-xl overflow-auto">
       <img id="previewImg" class="w-auto h-auto max-w-full max-h-[80vh] rounded mb-4" alt="Generated Poster" />
       <div id="templateSelection" class="mb-4">
-        <label class="block text-sm font-bold mb-2 text-yellow-400">Select Template:</label>
+        <label class="block text-sm font-bold mb-2 text-blue-600">Select Template:</label>
         <div id="templateButtons" class="flex gap-2 flex-wrap"></div>
       </div>
       <div class="flex justify-between">
         <button onclick="downloadPoster()" class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-400 transition-colors duration-200">Download</button>
         <button onclick="sharePoster()" class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-400 transition-colors duration-200">Share</button>
-        <button onclick="closePreview()" class="text-red-500 underline hover:text-red-400">Close</button>
+        <button onclick="closePreview()" class="text-red-600 underline hover:text-red-500">Close</button>
       </div>
     </div>
   </div>
@@ -284,16 +284,16 @@
 
       filteredPosters.forEach(({ id, ...item }) => {
         const div = document.createElement("div");
-        div.className = "bg-gray-800 rounded-lg p-3 flex items-center gap-3 hover:bg-gray-700 transition-colors duration-200 cursor-pointer";
+        div.className = "bg-gray-100 rounded-lg p-3 flex items-center gap-3 hover:bg-gray-200 transition-colors duration-200 cursor-pointer";
         div.onclick = () => previewPoster(id);
         div.innerHTML = `
-          <div class="bg-yellow-400 text-black rounded-full w-10 h-10 flex items-center justify-center font-bold">${item.number || 'N/A'}</div>
+          <div class="bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">${item.number || 'N/A'}</div>
           <div class="flex-1">
             <div class="font-bold">${item.program}</div>
-            <div class="text-sm text-gray-300">${item.category} </div>
+            <div class="text-sm text-gray-600">${item.category} </div>
           </div>
           <div class="flex gap-2">
-            <span class="text-green-400">👁</span>
+            <span class="text-green-600">👁</span>
           </div>
         `;
         container.appendChild(div);
