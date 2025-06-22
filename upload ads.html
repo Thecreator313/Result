@@ -7,12 +7,12 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .error-message {
-      color: #ff4444;
+      color: #b91c1c;
       font-weight: bold;
       text-align: center;
     }
     .success-message {
-      color: #22c55e;
+      color: #15803d;
       font-weight: bold;
       text-align: center;
     }
@@ -27,7 +27,7 @@
       max-width: 150px;
       height: auto;
       border-radius: 8px;
-      border: 2px solid #4b5563;
+      border: 2px solid #d1d5db;
     }
     .image-error {
       width: 150px;
@@ -35,38 +35,38 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #4b5563;
+      background-color: #e5e7eb;
       border-radius: 8px;
-      color: #ff4444;
+      color: #b91c1c;
       font-size: 0.9rem;
       text-align: center;
     }
   </style>
 </head>
-<body class="bg-gray-900 text-white p-4 flex flex-col min-h-screen">
-  <h1 class="text-xl font-bold mb-4">📸 Manage Advertisement Images</h1>
+<body class="bg-white text-black p-4 flex flex-col min-h-screen">
+  <h1 class="text-xl font-bold mb-4 text-blue-600">📸 Manage Advertisement Images</h1>
 
   <!-- Upload Section -->
-  <div class="bg-gray-800 rounded-lg p-6 mb-6 shadow-xl border border-gray-600">
+  <div class="bg-gray-100 rounded-lg p-6 mb-6 shadow-xl border border-gray-300">
     <div class="mb-4">
-      <label for="imageInput" class="block text-sm font-bold mb-2 text-yellow-400">Select Image:</label>
-      <input type="file" id="imageInput" accept="image/*" class="w-full p-2 bg-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-400"/>
+      <label for="imageInput" class="block text-sm font-bold mb-2 text-blue-600">Select Image:</label>
+      <input type="file" id="imageInput" accept="image/*" class="w-full p-2 bg-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 text-black"/>
     </div>
-    <button id="uploadButton" onclick="uploadImage()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-400 transition-colors duration-200 disabled:bg-gray-500" disabled>Upload Image</button>
+    <button id="uploadButton" onclick="uploadImage()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 disabled:bg-gray-400" disabled>Upload Image</button>
     <div id="statusMessage" class="mt-4 hidden"></div>
   </div>
 
   <!-- Image List Section -->
-  <div class="bg-gray-800 rounded-lg p-6 mb-6 shadow-xl border border-gray-600">
-    <h2 class="text-lg font-bold mb-4 text-yellow-400">Uploaded Images</h2>
+  <div class="bg-gray-100 rounded-lg p-6 mb-6 shadow-xl border border-gray-300">
+    <h2 class="text-lg font-bold mb-4 text-blue-600">Uploaded Images</h2>
     <div id="imageList" class="space-y-4">
-      <div id="noImages" class="text-gray-300 text-center hidden">No images uploaded yet</div>
+      <div id="noImages" class="text-gray-600 text-center hidden">No images uploaded yet</div>
     </div>
   </div>
 
   <!-- Footer -->
-  <footer class="mt-auto bg-gray-800 rounded-lg py-2 text-center text-gray-300 text-sm">
-    <p>©2025 SSF Nellikuth sector | Designed by <a href="https://wa.me/9744460317" target="_blank" class="text-yellow-400 hover:text-yellow-300 underline">ozonegraphics</a></p>
+  <footer class="mt-auto bg-gray-100 rounded-lg py-2 text-center text-gray-600 text-sm">
+    <p>©2025 SSF Nellikuth sector | Designed by <a href="https://wa.me/9744460317" target="_blank" class="text-blue-600 hover:text-blue-500 underline">ozonegraphics</a></p>
   </footer>
 
   <script type="module">
@@ -75,14 +75,14 @@
 
     // Firebase configuration
     const firebaseConfig = {
-  apiKey: "AIzaSyDgc1-JQaWpDWGxnK_D0g9S_G6jrhI0iG8",
-  authDomain: "sahithyotsavu-7f6d1.firebaseapp.com",
-  projectId: "sahithyotsavu-7f6d1",
-  storageBucket: "sahithyotsavu-7f6d1.firebasestorage.app",
-  messagingSenderId: "544493750372",
-  appId: "1:544493750372:web:ac8cebaf64f7447a6d3771",
-  measurementId: "G-C3JLLH88RK"
-};
+      apiKey: "AIzaSyDgc1-JQaWpDWGxnK_D0g9S_G6jrhI0iG8",
+      authDomain: "sahithyotsavu-7f6d1.firebaseapp.com",
+      projectId: "sahithyotsavu-7f6d1",
+      storageBucket: "sahithyotsavu-7f6d1.firebasestorage.app",
+      messagingSenderId: "544493750372",
+      appId: "1:544493750372:web:ac8cebaf64f7447a6d3771",
+      measurementId: "G-C3JLLH88RK"
+    };
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
@@ -118,7 +118,7 @@
         uploadButton.disabled = true;
         statusMessage.classList.remove("error-message", "success-message", "hidden");
         statusMessage.textContent = "Uploading...";
-        statusMessage.classList.add("text-gray-300");
+        statusMessage.classList.add("text-gray-600");
 
         const file = imageInput.files[0];
         if (!file) {
@@ -187,12 +187,12 @@
 
         const isValid = await isValidImageUrl(imageData.imagelink);
         const div = document.createElement("div");
-        div.className = "bg-gray-700 rounded-lg p-4 flex items-center gap-4 hover:bg-gray-600 transition-colors duration-200 fade-in";
+        div.className = "bg-gray-200 rounded-lg p-4 flex items-center gap-4 hover:bg-gray-300 transition-colors duration-200 fade-in";
         div.innerHTML = `
           ${isValid 
             ? `<img src="${imageData.imagelink}" alt="Ad Image" class="image-preview">`
             : `<div class="image-error">Image failed to load</div>`}
-          <button onclick="deleteImage('${pushKey}')" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-400 transition-colors duration-200">Delete</button>
+          <button onclick="deleteImage('${pushKey}')" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-colors duration-200">Delete</button>
         `;
         imageList.appendChild(div);
       }
@@ -211,7 +211,7 @@
       try {
         statusMessage.classList.remove("error-message", "success-message", "hidden");
         statusMessage.textContent = "Deleting...";
-        statusMessage.classList.add("text-gray-300");
+        statusMessage.classList.add("text-gray-600");
 
         const adRef = ref(db, `ads/${pushKey}`);
         await remove(adRef);
