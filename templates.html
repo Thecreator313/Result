@@ -12,14 +12,14 @@
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
     const firebaseConfig = {
-  apiKey: "AIzaSyDgc1-JQaWpDWGxnK_D0g9S_G6jrhI0iG8",
-  authDomain: "sahithyotsavu-7f6d1.firebaseapp.com",
-  projectId: "sahithyotsavu-7f6d1",
-  storageBucket: "sahithyotsavu-7f6d1.firebasestorage.app",
-  messagingSenderId: "544493750372",
-  appId: "1:544493750372:web:ac8cebaf64f7447a6d3771",
-  measurementId: "G-C3JLLH88RK"
-};
+      apiKey: "AIzaSyDgc1-JQaWpDWGxnK_D0g9S_G6jrhI0iG8",
+      authDomain: "sahithyotsavu-7f6d1.firebaseapp.com",
+      projectId: "sahithyotsavu-7f6d1",
+      storageBucket: "sahithyotsavu-7f6d1.firebasestorage.app",
+      messagingSenderId: "544493750372",
+      appId: "1:544493750372:web:ac8cebaf64f7447a6d3771",
+      measurementId: "G-C3JLLH88RK"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -34,14 +34,14 @@
         const data = child.val();
         const templateBox = document.createElement("div");
 
-        templateBox.className = "bg-gray-800 p-4 rounded shadow text-white";
+        templateBox.className = "bg-gray-100 p-4 rounded shadow text-black";
         templateBox.innerHTML = `
           <img src="${data.image}" alt="${data.name}" class="w-full h-40 object-cover rounded mb-2"/>
           <div class="flex justify-between items-center mb-2">
-            <h2 class="text-lg font-bold">${data.name}</h2>
+            <h2 class="text-lg font-bold text-black">${data.name}</h2>
             <div>
-              <button onclick="editTemplate('${id}')" class="text-yellow-400 mr-2">✏️</button>
-              <button onclick="deleteTemplate('${id}')" class="text-red-400">🗑️</button>
+              <button onclick="editTemplate('${id}')" class="text-blue-600 mr-2">✏️</button>
+              <button onclick="deleteTemplate('${id}')" class="text-red-600">🗑️</button>
             </div>
           </div>
         `;
@@ -64,9 +64,9 @@
     };
   </script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-4">
+<body class="bg-white text-black min-h-screen p-4">
 
-  <h1 class="text-2xl font-bold mb-4">Templates</h1>
+  <h1 class="text-2xl font-bold mb-4 text-blue-600">Templates</h1>
 
   <div id="templateContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     <!-- Templates will load here -->
